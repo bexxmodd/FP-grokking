@@ -69,8 +69,8 @@ fn main() {
         String::from("Alice"), String::from("Bob"), String::from("Charlie")
     ];
     let recs: Vec<String> = friends.into_iter()
-                      .flat_map(|f| recommended_books(&f))
-                      .flat_map(|b| b.authors)
-                      .collect();
+                                   .flat_map(|f| recommended_books(&f))
+                                   .flat_map(|b| b.authors)
+                                   .collect();
     println!("{:#?}", recs);
 }

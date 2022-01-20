@@ -16,23 +16,23 @@ object ChapterThree {
   }
 
   def firstTwo(x: List[String]): List[String] =  {
-    assert(x.length > 1)
+    assert(x.size > 1)
     x.slice(0, 2)
   }
 
   def lastTwo(x: List[String]): List[String] = {
-    assert(x.length > 1)
-    var len = x.length
+    assert(x.size > 1)
+    var len = x.size
     x.slice(len - 2, len)
   }
 
   def movedFirstTwoToTheEnd(x: List[String]): List[String] = {
-    assert(x.length > 1)
-    x.slice(2, x.length) ++ firstTwo(x)
+    assert(x.size > 1)
+    x.slice(2, x.size) ++ firstTwo(x)
   }
 
   def insertedBeforeLast(x: List[String], new_el: String): List[String] = {
-    assert(x.length > 0)
+    assert(x.size > 0)
     var without_last = x.slice(0, x.size - 1)
     var last = x.slice(x.size - 1, x.size)
     without_last ::: new_el :: last
