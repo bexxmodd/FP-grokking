@@ -5,9 +5,16 @@ object Location {
       def name: String = a
 }
 
-import Location.*
+enum MusicGenre {
+  case HeavyMetal
+  case Pop
+  case HardRock
+}
 
-case class Artist(name: String, genre: String,
+import Location._
+import MusicGenre._
+
+case class Artist(name: String, genre: MusicGenre,
                   origin: Location, yearsActive: PeriodInYears)
 
 case class PeriodInYears(start: Int, end: Option[Int])
@@ -18,7 +25,7 @@ case class User(name: String, city: Option[String], favArtists: List[String])
 object ChapterSeven {
   def searchArtists(
     artists: List[Artist],
-    genres: List[String],
+    genres: List[MusicGenre],
     locations: List[String],
     searchByActiveYears: Boolean,
     activeAfter: Int,
@@ -64,14 +71,14 @@ object ChapterSeven {
   }
 
   val artists = List(
-    Artist("Metallica", "Heavy Metal", Location("U.S."), PeriodInYears(1981, None)),
-    Artist("Led Zeppelin", "Hard Rock", Location("England"), PeriodInYears(1968, Some(1980))),
-    Artist("Bee Gees", "Pop", Location("England"), PeriodInYears(1958, Some(2003)))
+    Artist("Metallica", HeavyMetal, Location("U.S."), PeriodInYears(1981, None)),
+    Artist("Led Zeppelin", HardRock, Location("England"), PeriodInYears(1968, Some(1980))),
+    Artist("Bee Gees", Pop, Location("England"), PeriodInYears(1958, Some(2003)))
   )
 
-  println(searchArtists(artists, List("Pop"), List("England"), true, 1950, 2022))
+  println(searchArtists(artists, List(Pop), List("England"), true, 1950, 2022))
   println(searchArtists(artists, List.empty, List.empty, true, 1950, 1979))
-  println(searchArtists(artists, List("Heavy Metal"), List.empty, true, 2019, 2022))
+  println(searchArtists(artists, List(HeavyMetal), List.empty, true, 2019, 2022))
 
   // 7.18
   val users = List(
