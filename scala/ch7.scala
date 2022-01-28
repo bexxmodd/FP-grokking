@@ -11,11 +11,17 @@ enum MusicGenre {
   case HardRock
 }
 
+enum YearsActive {
+  case StillActive(since: Int)
+  case ActiveBetween(start: Int, end: Int)
+}
+
 import Location._
 import MusicGenre._
+import YearsActive._
 
 case class Artist(name: String, genre: MusicGenre,
-                  origin: Location, yearsActive: PeriodInYears)
+                  origin: Location, yearsActive: YearsActive)
 
 case class PeriodInYears(start: Int, end: Option[Int])
 
@@ -23,21 +29,23 @@ case class PeriodInYears(start: Int, end: Option[Int])
 case class User(name: String, city: Option[String], favArtists: List[String])
 
 object ChapterSeven {
-  def searchArtists(
-    artists: List[Artist],
-    genres: List[MusicGenre],
-    locations: List[String],
-    searchByActiveYears: Boolean,
-    activeAfter: Int,
-    activeBefore: Int
+  def searchArtists(artists: List[Artist], genres: List[MusicGenre],
+                    locations: List[String], searchByActiveYears: Boolean,
+                    activeAfter: Int, activeBefore: Int
   ): List[Artist] = {
     artists.filter(artist =>
       (genres.isEmpty || genres.contains(artist.genre)) &&
       (locations.isEmpty || locations.contains(artist.origin.name)) &&
-      (!searchByActiveYears || (
-        (artist.yearsActive.end.forall(_ >= activeAfter)) &&
-          (artist.yearsActive.start <= activeBefore)))
-      )
+        (!searchByActiveYears ||
+        wasArtistActive(artist, activeAfter, activeBefore))
+    )
+  }
+
+  def wasArtistActive(artist: Artist, yearStart: Int, yearEnd: Int): Boolean = {
+    artist.yearsActive match {
+      case StillActive(since) => since <= yearStart
+      case ActiveBetween(start, end) => start <= yearStart && end > yearEnd
+    }
   }
 
   // 7.18 - 1
@@ -71,9 +79,9 @@ object ChapterSeven {
   }
 
   val artists = List(
-    Artist("Metallica", HeavyMetal, Location("U.S."), PeriodInYears(1981, None)),
-    Artist("Led Zeppelin", HardRock, Location("England"), PeriodInYears(1968, Some(1980))),
-    Artist("Bee Gees", Pop, Location("England"), PeriodInYears(1958, Some(2003)))
+    Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(since = 1981)),
+    Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
+    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
   )
 
   println(searchArtists(artists, List(Pop), List("England"), true, 1950, 2022))
