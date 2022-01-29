@@ -25,19 +25,26 @@ case class Artist(name: String, genre: MusicGenre,
 
 case class PeriodInYears(start: Int, end: Option[Int])
 
+enum SearchCondition {
+  case SearchByGenre(genre: List[MusicGenre])
+  case SearchByOrigin(location: List[Location])
+  case SearchByActiveYears(start: Int, end: Int)
+}
+
 // 7.18
 case class User(name: String, city: Option[String], favArtists: List[String])
 
 object ChapterSeven {
-  def searchArtists(artists: List[Artist], genres: List[MusicGenre],
-                    locations: List[String], searchByActiveYears: Boolean,
-                    activeAfter: Int, activeBefore: Int
-  ): List[Artist] = {
-    artists.filter(artist =>
-      (genres.isEmpty || genres.contains(artist.genre)) &&
-      (locations.isEmpty || locations.contains(artist.origin.name)) &&
-        (!searchByActiveYears ||
-        wasArtistActive(artist, activeAfter, activeBefore))
+  def searchArtists(artists: List[Artist],
+    requiredConditions: List[SearchCondition]): List[Artist] = {
+    artists.filter(artist => 
+      requiredConditions.forall(condition => 
+          condition match {
+            case SearchByGenre(genres) => genres.contains(artist.genre)
+            case SearchByOrigin(locations) => locations.contains(artist.origin)
+            case SearchByActiveYears(start, end) => wasArtistActive(artist, start, end)
+          }
+      )
     )
   }
 
@@ -92,9 +99,17 @@ object ChapterSeven {
     Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
   )
 
-  println(searchArtists(artists, List(Pop), List("England"), true, 1950, 2022))
-  println(searchArtists(artists, List.empty, List.empty, true, 1950, 1979))
-  println(searchArtists(artists, List(HeavyMetal), List.empty, true, 2019, 2022))
+  println(searchArtists(artists, List(
+    SearchByGenre(List(Pop)),
+    SearchByOrigin(List(Location("England"))),
+    SearchByActiveYears(1950, 2022))
+  ))
+
+  println(searchArtists(artists, List(SearchByActiveYears(1950, 2022))))
+  println(searchArtists(artists, List.empty))
+  println(searchArtists(artists, List(SearchByGenre(List(Pop)),                  
+                        SearchByOrigin(List(Location("England")))))
+  )
 
   // 7.18
   val users = List(
