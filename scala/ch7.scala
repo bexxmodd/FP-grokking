@@ -5,25 +5,23 @@ object Location {
       def name: String = a
 }
 
+case class PeriodInYears(start: Int, end: Int)
+
 enum MusicGenre {
   case HeavyMetal
   case Pop
   case HardRock
 }
 
+
 enum YearsActive {
   case StillActive(since: Int)
-  case ActiveBetween(start: Int, end: Int)
+  case ActiveBetween(period: List[PeriodInYears])
 }
-
-import Location._
-import MusicGenre._
-import YearsActive._
 
 case class Artist(name: String, genre: MusicGenre,
                   origin: Location, yearsActive: YearsActive)
 
-case class PeriodInYears(start: Int, end: Option[Int])
 
 enum SearchCondition {
   case SearchByGenre(genre: List[MusicGenre])
@@ -35,15 +33,20 @@ enum SearchCondition {
 case class User(name: String, city: Option[String], favArtists: List[String])
 
 object ChapterSeven {
+  import Location._
+  import MusicGenre._
+  import YearsActive._
+  import SearchCondition._
+
   def searchArtists(artists: List[Artist],
     requiredConditions: List[SearchCondition]): List[Artist] = {
     artists.filter(artist => 
       requiredConditions.forall(condition => 
-          condition match {
-            case SearchByGenre(genres) => genres.contains(artist.genre)
-            case SearchByOrigin(locations) => locations.contains(artist.origin)
-            case SearchByActiveYears(start, end) => wasArtistActive(artist, start, end)
-          }
+        condition match {
+          case SearchByGenre(genres) => genres.contains(artist.genre)
+          case SearchByOrigin(locations) => locations.contains(artist.origin)
+          case SearchByActiveYears(start, end) => wasArtistActive(artist, start, end)
+        }
       )
     )
   }
@@ -51,7 +54,8 @@ object ChapterSeven {
   def wasArtistActive(artist: Artist, yearStart: Int, yearEnd: Int): Boolean = {
     artist.yearsActive match {
       case StillActive(since) => since <= yearStart
-      case ActiveBetween(start, end) => start <= yearStart && end > yearEnd
+      case ActiveBetween(period) => period.forall(p =>
+                              p.start <= yearStart && p.end > yearEnd)
     }
   }
 
@@ -86,17 +90,17 @@ object ChapterSeven {
   }
 
   // 7.29
-  def activeLength(artist: Artist, currentYear: Int): Int = {
-    artist.yearsActive match {
-      case StillActive(since) => currentYear - since
-      case ActiveBetween(start, end) => end - start
-    }
-  }
+  // def activeLength(artist: Artist, currentYear: Int): Int = {
+  //   artist.yearsActive match {
+  //     case StillActive(since) => currentYear - since
+  //     case ActiveBetween(start, end) => end - start
+  //   }
+  // }
 
   val artists = List(
     Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(since = 1981)),
-    Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
-    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(1958, 2003))
+    Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(List(PeriodInYears(1968, 1980)))),
+    Artist("Bee Gees", Pop, Location("England"), ActiveBetween(List(PeriodInYears(1958, 2003))))
   )
 
   println(searchArtists(artists, List(
@@ -128,21 +132,21 @@ object ChapterSeven {
   println("Users Fav Artists Name with M: \n\t" + usersLikeArtistsWithM(users).map(_.name))
 
   println("------------ Tests for active lengths (7.29) ------------")
-  println(activeLength(
-    Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)), 2022)
-  )
+  // println(activeLength(
+  //   Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)), 2022)
+  // )
 
-  println(activeLength(
-    Artist("Led Zeppelin", HardRock, Location("England"),
-      ActiveBetween(1968, 1980)),
-      2022
-  ))
+  // println(activeLength(
+  //   Artist("Led Zeppelin", HardRock, Location("England"),
+  //     ActiveBetween(1968, 1980)),
+  //     2022
+  // ))
 
-  println(
-    activeLength(
-      Artist("Bee Gees", Pop, Location("England"),
-      ActiveBetween(1958, 2003)), 2022)
-  )
+  // println(
+  //   activeLength(
+  //     Artist("Bee Gees", Pop, Location("England"),
+  //     ActiveBetween(1958, 2003)), 2022)
+  // )
 
   def main(args: Array[String]) = {
     println("Done!")
