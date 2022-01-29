@@ -78,6 +78,14 @@ object ChapterSeven {
     users.filter(_.favArtists.exists(_.startsWith("M")))
   }
 
+  // 7.29
+  def activeLength(artist: Artist, currentYear: Int): Int = {
+    artist.yearsActive match {
+      case StillActive(since) => currentYear - since
+      case ActiveBetween(start, end) => end - start
+    }
+  }
+
   val artists = List(
     Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(since = 1981)),
     Artist("Led Zeppelin", HardRock, Location("England"), ActiveBetween(1968, 1980)),
@@ -103,6 +111,23 @@ object ChapterSeven {
   println("Users City Stars with T: \n\t" + usersStartWithT(users).map(_.name))
   println("Users Fav Artists Name > 8 Char: \n\t" + usersWithLongNames(users).map(_.name))
   println("Users Fav Artists Name with M: \n\t" + usersLikeArtistsWithM(users).map(_.name))
+
+  println("------------ Tests for active lengths (7.29) ------------")
+  println(activeLength(
+    Artist("Metallica", HeavyMetal, Location("U.S."), StillActive(1981)), 2022)
+  )
+
+  println(activeLength(
+    Artist("Led Zeppelin", HardRock, Location("England"),
+      ActiveBetween(1968, 1980)),
+      2022
+  ))
+
+  println(
+    activeLength(
+      Artist("Bee Gees", Pop, Location("England"),
+      ActiveBetween(1958, 2003)), 2022)
+  )
 
   def main(args: Array[String]) = {
     println("Done!")
